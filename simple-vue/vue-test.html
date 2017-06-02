@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>vue</title>
+</head>
+<body>
+	<div id="app">
+		<!-- <div>{{name.a}}</div>
+		<ul>
+			<li>{{name.b}}</li>
+		</ul>
+		<p>{{count}}</p>
+		<button v-on:click="add"></button> -->
+		<!-- <p>{{msg}}</p>
+		<input type="text" v-model="msg"> -->
+		<button @click="add"></button>
+		<p>{{count}}</p>
+	</div>
+	<script src="vue.js"></script>
+	<script>
+		var app = new Vue({
+			el: '#app',
+			data: {
+				msg: '',
+				count: 0,
+				// name: {
+				// 	a: 'maoyuyang',
+				// 	b: 'qweda'
+				// }
+			},
+			methods: {
+				add: function() {
+					var that = this
+					setInterval(function(){
+						that.count++
+					},1000)
+				}
+			}
+		})
+	</script>
+</body>
+</html>
