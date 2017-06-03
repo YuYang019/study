@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<style>
+		* {
+			margin: 0;
+			padding: 0;
+		}
+		canvas {
+			display: block;
+			width: 100%;
+			height: 100%;
+			background: linear-gradient(#000,rgb(120,95,246));
+		}
+
+		p {
+			position: absolute;
+			top: 0;
+			left: 0;
+			right: 0;
+			bottom: 0;
+			margin: auto;
+			width: 250px;
+			height: 50px;
+			line-height: 50px;
+			font-size: 50px;
+			color:#fff;
+		}
+		#main {
+			position: absolute;
+			top: 0;
+			bottom: 0;
+			left: 0;
+			right: 0;
+		}
+	</style>
+</head>
+<body>
+	<div id="main">
+		<canvas id="canvas"></canvas>
+		<p>你好，世界</p>
+	</div>		
+	<script src="index.js"></script>
+</body>
+</html>
