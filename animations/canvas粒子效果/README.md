@@ -1,6 +1,6 @@
 # canvas粒子特效
 
-## [demo](www.baidu.com)
+## 预览[demo](http://htmlpreview.github.io/?https://github.com/maoyuyang/study/blob/master/animations/canvas%E7%B2%92%E5%AD%90%E6%95%88%E6%9E%9C/index.html)
 
 实现思路：
 
