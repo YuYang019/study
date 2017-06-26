@@ -121,7 +121,7 @@ Watcher.prototype = {
 		var oldVal = this.value
 		if (value !== oldVal) {
 			this.value = value
-			this.cb.call(this.vm, value, oldVal)
+			this.cb.call(this.vm, value)
 		}
 	},
 	beforeGet: function() {
@@ -201,6 +201,7 @@ Compile.prototype = {
 	compileElement: function(el) {
 		var child = el.childNodes;
 		var that = this;
+		//[].slice 建立副本
 		[].slice.call(child).forEach(function(node) {
 			var reg = /\{\{(.*)\}\}/
 			var text = node.textContent
@@ -209,7 +210,7 @@ Compile.prototype = {
 				that.compile(node)
 			} else if (that.isTextNode(node) && reg.test(text)) {
 				//console.log(reg.exec(text))
-				that.compileText(node, reg.exec(text)[1])
+				that.compileText(node, text)
 			}
 
 			if (node.childNodes && node.childNodes.length) {
@@ -235,20 +236,23 @@ Compile.prototype = {
 			}
 		})
 	},
-	compileText: function(node, exp) {
+	compileText: function(node, text) {
 		var that = this
-		var initText
+		var frag = document.createDocumentFragment()		
+		var el, token
+		
+		var tokens = parseText(text) //解析文本获得tokens
+		
+		if (!tokens) return null
 
-		if (exp.indexOf('.') === -1) {
-			initText = this.vm[exp]
-		} else {
-			initText = this.vm.getVal(exp)
+		for (var i = 0, l = tokens.length; i < l; i++) {
+			token = tokens[i]
+			el = token.tag ? processToken(token) : document.createTextNode(token.value)
+			frag.appendChild(el)
 		}
 
-		this.updateText(node, initText)
-		new Watcher(this.vm, exp, function(val) {
-			that.updateText(node, val)
-		})
+		return makeTextNodeLinkFn.call(this, tokens, frag, node, this.vm)
+		
 	},
 	compileEvent: function(node, vm, exp, dir) {
 		var eventType = dir.indexOf(':') === -1 ? dir : dir.split(':')[1] // on:click,取得click，或者直接为click
@@ -348,5 +352,109 @@ Vue.prototype = {
 		})
 
 		return data
+	}
+}
+
+//解析文本，返回obj
+function parseText (text) {
+	// ((?:.)+?)是核心
+	// +?的意思是匹配一次或多次，但是尽可能少匹配
+	// (?:  )是一个捕获组，和（）作用差不多，但是和（）相比，不捕获匹配的文本
+	// 例如，var data = 'windows 98 is ok';
+	//data.match(/windows (?=\d+)/);  // ["windows "]
+	//data.match(/windows (?:\d+)/);  // ["windows 98"]
+	//data.match(/windows (\d+)/);    // ["windows 98", "98"]
+	//(?:.)就是匹配任意字符
+	var reg = /\{\{((?:.)+?)\}\}/g
+	var tokens = []
+	var match,index,lastIndex,value
+
+	while (match = reg.exec(text)) {
+		index = match.index; //开始是0
+
+		//index是第一次匹配模板{{}}时的index
+		//lastindex是下一次匹配到模板的index
+		//如果index > lastindex 说明两个模板之间有普通的文本，所以把该文本输出		
+		if (index > lastIndex) {
+			tokens.push({
+				value: text.slice(lastIndex, index)
+			})
+		}
+
+		value = match[1] // user.a
+
+		tokens.push({
+			tag: true,
+			value: value.trim()
+		})
+		//lastindex应该是index加上模板的长度
+		lastIndex = index + match[0].length // 0 + '{{user.a}}'.length
+	}
+
+	return tokens
+}
+
+/**
+ * 将建立的frag替换原text，并创建watcher
+ * @param  {[type]} tokens 解析出来的文本对象
+ * @param  {[type]} frag   建立的文档碎片
+ * @param  {[type]} node   原text节点
+ * @param  {[type]} vm     vm实例
+ */
+function makeTextNodeLinkFn(tokens, frag, node, vm) {
+	var that = this
+	//var fragClone = frag.cloneNode(true)
+	var childNodes = toArray(frag.childNodes)
+	var token,exp,des
+	for (var i = 0, l = tokens.length; i < l; i++) {
+		token = tokens[i]
+		exp = token.value
+		des = token.descriptor //记录着存模板的节点，更新时需要这个节点
+		if (token.tag) {
+			//闭包保存每次循环的节点
+			var watcher = new Watcher(vm, exp, (function(node){
+				return function () {
+					that.updateText(node, arguments[0])
+				}
+			})(des.node))
+
+			console.log(des.node)
+			
+			this.updateText(des.node, watcher.value)
+		}
+	}
+	replace(node, frag)
+}
+
+function processToken(token) {
+	var el
+
+	el = document.createTextNode(' ')
+	
+	token.descriptor = {
+		type: 'text',
+		node: el,
+		exp: token.value
+	}
+
+	return el
+}
+
+function toArray(arrayLike) {
+	var i = arrayLike.length
+	var arr = new Array(i)
+
+	while (i--) {
+		arr[i] = arrayLike[i]
+	}
+
+	return arr
+}
+
+function replace(oldnode, newnode) {
+	var parent = oldnode.parentNode
+
+	if (parent) {
+		parent.replaceChild(newnode, oldnode)
 	}
 }

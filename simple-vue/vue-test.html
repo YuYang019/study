@@ -6,16 +6,7 @@
 </head>
 <body>
 	<div id="app">
-		<!-- <div>{{name.a}}</div>
-		<ul>
-			<li>{{name.b}}</li>
-		</ul>
-		<p>{{count}}</p>
-		<button v-on:click="add"></button> -->
-		<!-- <p>{{msg}}</p>
-		<input type="text" v-model="msg"> -->
-		<button @click="add"></button>
-		<p>{{count}}</p>
+		<p>{{user.b}} sad {{user.a}}</p>
 	</div>
 	<script src="vue.js"></script>
 	<script>
@@ -24,17 +15,9 @@
 			data: {
 				msg: '',
 				count: 0,
-				// name: {
-				// 	a: 'maoyuyang',
-				// 	b: 'qweda'
-				// }
-			},
-			methods: {
-				add: function() {
-					var that = this
-					setInterval(function(){
-						that.count++
-					},1000)
+				user: {
+					a: 'maoyuyang',
+					b: 'qweda'
 				}
 			}
 		})
