@@ -3,6 +3,42 @@
  * 2017.5.28
  */
 
+/**
+ * 批处理构造函数
+ */
+function Batcher() {
+	this.reset()
+}
+
+Batcher.prototype.reset = function() {
+	this.has = {}
+	this.queue = []
+	this.waiting = false
+}
+
+//job {watcher}
+Batcher.prototype.push = function (job) {
+	var that = this
+	if (!this.has[job.id]) {
+		this.queue.push(job)
+		this.has[job.id] = job
+		if (!this.waiting) {
+			this.waiting = true
+			//等待主线程空了之后才执行
+			setTimeout(function() {
+				that.flush()
+			},0)
+		}
+	}
+}
+
+Batcher.prototype.flush = function () {
+	this.queue.forEach(function(job){
+		job.cb.call(job)
+	})
+	this.reset()
+}
+
 function Observer(data) {
 	this.data = data
 	
@@ -37,7 +73,7 @@ Observer.prototype = {
 				val = newVal
 
 				childObj = observe(newVal)
-				console.log(dep)
+				//console.log(dep)
 				dep.notify()
 			}
 		})
@@ -77,6 +113,8 @@ Dep.prototype = {
 }
 
 var $uid = 0
+
+var batcher = new Batcher()
 
 function Watcher(vm, exp, cb) {
 	this.id = ++$uid
@@ -121,7 +159,8 @@ Watcher.prototype = {
 		var oldVal = this.value
 		if (value !== oldVal) {
 			this.value = value
-			this.cb.call(this.vm, value)
+			batcher.push(this)
+			//this.cb.call(this.vm, value)
 		}
 	},
 	beforeGet: function() {
@@ -144,7 +183,7 @@ Watcher.prototype = {
 	// 传进来的是一个dep,它是当前数据的依赖管理
 	addDep: function(dep) {
 		var id = dep.id
-		console.log(id)
+		//console.log(id)
 		//源码写法，让dep.subs里的watcher不重复的核心逻辑
 		if (!this.newDepIds.has(id)) {
 			this.newDepIds.add(id)
@@ -355,6 +394,7 @@ Vue.prototype = {
 	}
 }
 
+
 //解析文本，返回obj
 function parseText (text) {
 	// ((?:.)+?)是核心
@@ -412,11 +452,12 @@ function makeTextNodeLinkFn(tokens, frag, node, vm) {
 		des = token.descriptor //记录着存模板的节点，更新时需要这个节点
 		if (token.tag) {
 			//闭包保存每次循环的节点
-			var watcher = new Watcher(vm, exp, (function(node){
+			var watcher = new Watcher(vm, exp, (function(node,exp){
 				return function () {
-					that.updateText(node, arguments[0])
+					that.updateText(node, this.value)
+					console.log('更新DOM了' + exp + ' ' + this.value)
 				}
-			})(des.node))
+			})(des.node,exp))
 
 			console.log(des.node)
 			
