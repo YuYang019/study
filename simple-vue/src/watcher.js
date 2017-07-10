@@ -5,6 +5,7 @@
 import Batcher from './batcher'
 import Dep from './dep'
 import { parseExp } from './parse/parse'
+import { isObject } from './util/util'
 
 let $uid = 0
 let batcher = new Batcher()
@@ -57,7 +58,9 @@ Watcher.prototype.get = function () {
 Watcher.prototype.run = function () {
 	let value = this.get()
 	let oldVal = this.value
-	if (value !== oldVal) {
+	
+	//如果两者不等或者这个值是一个对象
+	if (value !== oldVal || isObject(value)) {
 		this.value = value
 		// 批处理更新
 		batcher.push(this)

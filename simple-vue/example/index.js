@@ -7,7 +7,8 @@ var app = new Vue({
 		msg: '',
 		user: {
 			name: 'maoyuyang'
-		}
+		},
+		array: [1,2,3]
 	},
 	methods: {
 		add: function () {

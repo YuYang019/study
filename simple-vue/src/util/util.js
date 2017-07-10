@@ -24,6 +24,10 @@ export function extend (to, from) {
 	return to
 }
 
+export function hasProto () {
+	return '__proto__' in {}
+}
+
 export function isElementNode (node) {
 	return node.nodeType === 1
 }
@@ -43,8 +47,8 @@ export function isEventDirective (dir) {
 
 // v-on:click , @click , v-model , 三种情况， 返回 v- 之后的或者 click
 export function getDir (attrName) {
-	return attrName.indexOf('@') === 0 
-		? attrName.substring(1) 
+	return attrName.indexOf('@') === 0
+		? attrName.substring(1)
 		: attrName.substring(2)
 }
 

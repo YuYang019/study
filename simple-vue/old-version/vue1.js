@@ -2283,6 +2283,7 @@ var transition = Object.freeze({
         } else {
           val = newVal;
         }
+        console.log(1)
         childOb = observe(newVal);
         dep.notify();
       }
