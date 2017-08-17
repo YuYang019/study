@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<title>Document</title>
+		<style>
+			#a {
+				width: 100px;
+				height: 100px;
+				border: 1px solid #000;
+			}
+			#b {
+				width: 200px;
+				height: 200px;
+				border: 1px solid #000;
+			}
+			#right {
+				position: absolute;
+				top: 200px;
+			}
+			#right li{
+				border: 1px solid #000
+			}
+		</style>
+	</head>
+	<body>
+		<div id="a">
+			<span class="handler">handler</span>
+		</div>
+		<div id="b"></div>
+
+		<script src="util.js"></script>
+		<script src="drag.js"></script>
+		<script>
+			new Drag(document.querySelector('#a'), {
+				handler: document.querySelector('.handler'),
+				direction: 'x',
+				dragStart(x, y) {
+					console.log(x, y)
+				},
+				dragMove(x, y) {
+					console.log(`a:${x},${y}`)
+					console.log(this)
+				}
+			})
+			
+			new Drag(document.querySelector('#b'), {
+				dragStart(x, y) {
+					console.log(x, y)
+					console.log(this)
+				},
+				dragEnd(x, y) {
+					console.log('end')
+				}
+			})
+		</script>
+	</body>
+</html>
