@@ -3,7 +3,7 @@
 参考了jquery动画的实现，支持链式调用，很多属性值未做处理，比如css3,颜色等，主要目的是为了学习队列的操作和动画的实现
 
 ## example
-`
+
 
 	_('#a').animate({
 			left: 600,
@@ -21,7 +21,8 @@
 			duration: 3000
 		})
 
-`
+
+## [demo](https://maoyuyang.github.io/study/animate/index.html)
 
 ## 总结
 
